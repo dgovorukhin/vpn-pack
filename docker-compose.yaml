@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  wireguard-ui:
+    image: ngoduykhanh/wireguard-ui:latest
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-ui/db:/app/db
+      - ./wireguard-ui/config:/etc/wireguard
+    restart: unless-stopped
+    environment:
+      WGUI_SERVER_INTERFACE_ADDRESSES: ${NETWORK_ADDRESS}
+      WGUI_SERVER_POST_UP_SCRIPT: ${UP_SCRIPT}
+      WGUI_SERVER_POST_DOWN_SCRIPT: ${DOWN_SCRIPT}
+      WGUI_MANAGE_START: true
+      WGUI_MANAGE_RESTART: true
+    ports:
+      - "51820:51820/udp"
+    networks:
+      - net
+  traefik:
+    image: traefik:v2.9.8
+    environment:
+      VPN_PACK_DOMAIN_NAME: ${VPN_PACK_DOMAIN_NAME}
+      TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL: ${VPN_PACK_EMAIL}
+    volumes:
+      - "./traefik/traefik.yaml:/etc/traefik/traefik.yaml"
+      - "./traefik/dynamic:/root/config"
+      - "./letsencrypt:/root/letsencrypt/"
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    networks:
+      - net
+networks:
+  net:

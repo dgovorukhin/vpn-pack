@@ -1,0 +1,20 @@
+log:
+  level: DEBUG
+
+providers:
+  docker:
+    exposedByDefault: false
+  file:
+    directory: /root/config
+    watch: true
+
+entryPoints:
+  websecure:
+    address: ":443"
+
+certificatesresolvers:
+  letsencrypt:
+    acme:
+      storage: /root/letsencrypt/acme.json
+      tlsChallenge: {}
+
