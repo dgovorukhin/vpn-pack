@@ -24,10 +24,11 @@ docker compose logs -f
 ```
 
 ### Features
-- VPN configuration management for multiple client (friends and family)
+- VPN configuration management for multiple clients (friends and family)
 - only 2 ports in your firewall, 1 for https 1 for VPN clients
 - free letsencrypt certificate receiving and renewal automatically
- - minimal resource required  (1cpu/100 mb ram)
+> manage your config from whatever you want with secure https connection 
+- minimal resource required  (1cpu/100 mb ram)
 > you can use lower priced VPS/VDS servers
 
 ### Requirements
