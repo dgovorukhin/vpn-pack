@@ -1,0 +1,14 @@
+http:
+  routers:
+    vpn-router:
+      rule: "Host(`{{ env "VPN_PACK_DOMAIN_NAME" }}`)"
+      tls:
+        certresolver: letsencrypt
+      service: vpn-service
+      entryPoints:
+        - "websecure"
+  services:
+    vpn-service:
+      loadBalancer:
+        servers:
+          - url: "http://wireguard-ui:5000"
