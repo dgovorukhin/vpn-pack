@@ -11,10 +11,12 @@ providers:
 entryPoints:
   websecure:
     address: ":443"
+  web:
+    address: ":8080"
 
 certificatesresolvers:
   letsencrypt:
     acme:
       storage: /root/letsencrypt/acme.json
-      tlsChallenge: {}
+      tlsChallenge: { }
 

@@ -1,14 +1,34 @@
 http:
   routers:
-    vpn-router:
-      rule: "Host(`{{ env "VPN_PACK_DOMAIN_NAME" }}`)"
-      tls:
-        certresolver: letsencrypt
+#    vpn-secure:
+#      rule: "Host(`vpn.{{ env "VPN_PACK_DOMAIN_NAME" }}`)"
+#      tls:
+#        certresolver: letsencrypt
+#      service: vpn-service
+#      entryPoints:
+#        - "websecure"
+#    pihole-secure:
+#      rule: "Host(`dns.{{ env "VPN_PACK_DOMAIN_NAME" }}`)"
+#      service: pihole-service
+#      entryPoints:
+#        - "websecure"
+    vpn-unsecure:
+      rule: "Host(`vpn.{{ env "VPN_PACK_DOMAIN_NAME" }}`)"
       service: vpn-service
       entryPoints:
-        - "websecure"
+        - "web"
+    pihole-unsecure:
+      rule: "Host(`dns.{{ env "VPN_PACK_DOMAIN_NAME" }}`)"
+      service: pihole-service
+      entryPoints:
+        - "web"
+
   services:
     vpn-service:
       loadBalancer:
         servers:
           - url: "http://wireguard-ui:5000"
+    pihole-service:
+      loadBalancer:
+        servers:
+          - url: "http://pi-hole:80"
