@@ -22,3 +22,4 @@ RUN  echo -n "wg_pvt: " >> parameters.yaml && echo "\"$(cat wg-pvt)\"" >> parame
 
 RUN j2 -f ? wg0.j2  parameters.yaml > wg0.conf
 RUN j2 -f ? pihole.j2  parameters.yaml > pihole.conf
+RUN j2 -f ? docker-compose-template.j2  parameters.yaml > docker-compose.yaml

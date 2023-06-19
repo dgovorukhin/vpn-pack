@@ -3,6 +3,7 @@ version: "3.8"
 services:
   wireguard-ui:
     image: ngoduykhanh/wireguard-ui:latest
+    privileged: true
     cap_add:
       - NET_ADMIN
     volumes:
@@ -10,16 +11,16 @@ services:
       - ./wireguard-ui/config:/etc/wireguard
     restart: unless-stopped
     environment:
-      WGUI_SERVER_INTERFACE_ADDRESSES: ${NETWORK_ADDRESS}
-      WGUI_SERVER_POST_UP_SCRIPT: ${UP_SCRIPT}
-      WGUI_SERVER_POST_DOWN_SCRIPT: ${DOWN_SCRIPT}
+      WGUI_SERVER_INTERFACE_ADDRESSES: "{{WG_SUB_NETWORK}}"
+      WGUI_SERVER_POST_UP_SCRIPT: "{{ WG_UP_SCRIPT }}"
+      WGUI_SERVER_POST_DOWN_SCRIPT: "{{ WG_DOWN_SCRIPT }}"
       WGUI_MANAGE_START: true
       WGUI_MANAGE_RESTART: true
     ports:
       - "51820:51820/udp"
     networks:
       net:
-        ipv4_address: 192.168.1.2
+        ipv4_address: {{ INTERNAL_WG_IP }}
   pi-hole:
     image: pihole/pihole:latest
     cap_add:
@@ -29,18 +30,18 @@ services:
       - ./pi-hole/dnsmasq.d:/etc/dnsmasq.d
     restart: unless-stopped
     environment:
-      WEBPASSWORD: ${PIHOLE_PASSWORD}
+      WEBPASSWORD: "{{ PIHOLE_PASSWORD }}"
     ports:
       - "53:53/udp"
       - "53:53/tcp"
     networks:
       net:
-        ipv4_address: 192.168.1.3
+        ipv4_address: {{ INTERNAL_PIHOLE_IP }}
   traefik:
     image: traefik:v2.9.8
     environment:
-      VPN_PACK_DOMAIN_NAME: ${VPN_PACK_DOMAIN_NAME}
-      TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL: ${VPN_PACK_EMAIL}
+      VPN_PACK_DOMAIN_NAME: "{{ VPN_PACK_DOMAIN_NAME }}"
+      TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL: "{{ VPN_PACK_EMAIL }}"
     volumes:
       - "./traefik/traefik.yaml:/etc/traefik/traefik.yaml"
       - "./traefik/dynamic:/root/config"
@@ -57,5 +58,5 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.1.0/24
-          gateway: 192.168.1.1
+        - subnet: {{ INTERNAL_SUBNET }}
+          gateway: {{ INTERNAL_GATEWAY }}

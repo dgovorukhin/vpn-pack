@@ -1,9 +1,9 @@
 [Interface]
 PrivateKey = {{ wg_pvt }}
-Address = 10.0.0.0/24
+Address = {{ WG_SUB_NETWORK }}
 PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
-ListenPort = {{ wg_port }}
+ListenPort = {{ WG_PORT }}
 
 [Peer]
 PublicKey = {{ pihole_pub }}
