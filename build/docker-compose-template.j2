@@ -16,6 +16,8 @@ services:
       WGUI_SERVER_POST_DOWN_SCRIPT: "{{ WG_DOWN_SCRIPT }}"
       WGUI_MANAGE_START: true
       WGUI_MANAGE_RESTART: true
+      WGUI_FIREWALL_MARK: ""
+      WGUI_DNS: "{{ INTERNAL_PIHOLE_IP }}"
     ports:
       - "51820:51820/udp"
     networks:
