@@ -1,0 +1,9 @@
+[Interface]
+Address = {{ wg_host }}/32
+PrivateKey = {{ pihole_pvt }}
+DNS = 8.8.8.8
+
+[Peer]
+PublicKey = {{ wg_pub }}
+Endpoint = {{ wg_host }}:{{ wg_port }}
+AllowedIPs = 0.0.0.0/0

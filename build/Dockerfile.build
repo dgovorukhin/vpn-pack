@@ -1,0 +1,24 @@
+FROM alpine:3.16 as build-wg
+
+WORKDIR /build
+RUN apk --no-cache add ca-certificates wireguard-tools
+RUN wg genkey | tee pihole-pvt | wg pubkey > pihole-pub
+RUN wg genkey | tee wg-pvt | wg pubkey > wg-pub
+
+FROM python:3.8-slim as build-pip
+
+WORKDIR /build
+
+RUN pip install j2cli[yaml]
+
+COPY . .
+COPY --from=build-wg /build .
+
+RUN  echo -n "pihole_pub: " >> parameters.yaml && echo "\"$(cat pihole-pub)\"" >> parameters.yaml
+RUN  echo -n "pihole_pvt: " >> parameters.yaml && echo "\"$(cat pihole-pvt)\"" >> parameters.yaml
+
+RUN  echo -n "wg_pub: " >> parameters.yaml && echo "\"$(cat wg-pub)\"" >> parameters.yaml
+RUN  echo -n "wg_pvt: " >> parameters.yaml && echo "\"$(cat wg-pvt)\"" >> parameters.yaml
+
+RUN j2 -f ? wg0.j2  parameters.yaml > wg0.conf
+RUN j2 -f ? pihole.j2  parameters.yaml > pihole.conf
