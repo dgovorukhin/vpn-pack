@@ -1,0 +1,16 @@
+FROM pihole/pihole:latest
+
+# Add debian backports repo for wireguard packages
+RUN echo "deb http://deb.debian.org/debian/ bullseye-backports main" > /etc/apt/sources.list.d/bullseye-backports.list
+
+# Install wireguard packges
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wireguard-tools iptables nano net-tools procps openresolv inotify-tools
+
+RUN mkdir -p /etc/s6-overlay/s6-rc.d/wg
+
+COPY wg-up.sh /etc/s6-overlay/s6-rc.d/wg/up
+
+RUN echo 'oneshot' > /etc/s6-overlay/s6-rc.d/wg/type
+
+RUN touch /etc/s6-overlay/s6-rc.d/user/contents.d/wg

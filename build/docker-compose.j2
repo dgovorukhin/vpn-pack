@@ -6,6 +6,7 @@ services:
     privileged: true
     cap_add:
       - NET_ADMIN
+      - NET_RAW
     volumes:
       - ./wireguard-ui/db:/app/db
       - ./wireguard-ui/config:/etc/wireguard
@@ -20,41 +21,46 @@ services:
       WGUI_DNS: "{{ INTERNAL_PIHOLE_IP }}"
     ports:
       - "51820:51820/udp"
+      - "8080:5000"
     networks:
       net:
         ipv4_address: {{ INTERNAL_WG_IP }}
   pi-hole:
-    image: pihole/pihole:latest
+    image: vpn-pack-pihole:latest
+    privileged: true
     cap_add:
       - NET_ADMIN
+      - NET_RAW
     volumes:
       - ./pi-hole/etc:/etc/pihole
       - ./pi-hole/dnsmasq.d:/etc/dnsmasq.d
+      - ./pi-hole/wg0.conf:/etc/wireguard/wg0.conf
     restart: unless-stopped
     environment:
       WEBPASSWORD: "{{ PIHOLE_PASSWORD }}"
     ports:
       - "53:53/udp"
       - "53:53/tcp"
+      - "8090:80"
     networks:
       net:
         ipv4_address: {{ INTERNAL_PIHOLE_IP }}
-  traefik:
-    image: traefik:v2.9.8
-    environment:
-      VPN_PACK_DOMAIN_NAME: "{{ VPN_PACK_DOMAIN_NAME }}"
-      TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL: "{{ VPN_PACK_EMAIL }}"
-    volumes:
-      - "./traefik/traefik.yaml:/etc/traefik/traefik.yaml"
-      - "./traefik/dynamic:/root/config"
-      - "./traefik/letsencrypt:/root/letsencrypt/"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    restart: unless-stopped
-    ports:
-      - "443:443"
-      - "8080:8080"
-    networks:
-      - net
+#  traefik:
+#    image: traefik:v2.9.8
+#    environment:
+#      VPN_PACK_DOMAIN_NAME: "{{ VPN_PACK_DOMAIN_NAME }}"
+#      TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL: "{{ VPN_PACK_EMAIL }}"
+#    volumes:
+#      - "./traefik/traefik.yaml:/etc/traefik/traefik.yaml"
+#      - "./traefik/dynamic:/root/config"
+#      - "./traefik/letsencrypt:/root/letsencrypt/"
+#      - "/var/run/docker.sock:/var/run/docker.sock"
+#    restart: unless-stopped
+#    ports:
+#      - "443:443"
+#      - "8080:8080"
+#    networks:
+#      - net
 networks:
   net:
     driver: bridge

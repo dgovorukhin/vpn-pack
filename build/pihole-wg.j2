@@ -1,0 +1,11 @@
+[Interface]
+PrivateKey = {{ pihole_pvt }}
+Address = 10.0.0.53/32
+DNS = 127.0.0.1
+MTU = 1450
+
+[Peer]
+PublicKey = {{ wg_pub }}
+AllowedIPs = 0.0.0.0/0
+Endpoint = {{ INTERNAL_WG_IP }}:{{ WG_PORT }}
+PersistentKeepalive = 15

@@ -1,1 +1,0 @@
-This folder should be mounted to wireguard-ui container and store VPN clients/server and interface configurations.

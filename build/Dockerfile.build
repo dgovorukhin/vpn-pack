@@ -1,3 +1,10 @@
+FROM alpine:3.16 as build-wg
+
+WORKDIR /build
+RUN apk --no-cache add ca-certificates wireguard-tools
+RUN wg genkey | tee pihole-pvt | wg pubkey > pihole-pub
+RUN wg genkey | tee wg-pvt | wg pubkey > wg-pub
+
 FROM python:3.8-slim as build-pip
 
 WORKDIR /build
@@ -5,5 +12,15 @@ WORKDIR /build
 RUN pip install j2cli[yaml]
 
 COPY . .
+COPY --from=build-wg /build .
 
-RUN j2 -f ? docker-compose-template.j2  config.yaml > docker-compose.yaml
+RUN  echo -n "pihole_pub: " >> config.yaml && echo "\"$(cat pihole-pub)\"" >> config.yaml
+RUN  echo -n "pihole_pvt: " >> config.yaml && echo "\"$(cat pihole-pvt)\"" >> config.yaml
+
+RUN  echo -n "wg_pub: " >> config.yaml && echo "\"$(cat wg-pub)\"" >> config.yaml
+RUN  echo -n "wg_pvt: " >> config.yaml && echo "\"$(cat wg-pvt)\"" >> config.yaml
+
+RUN j2 -f ? docker-compose.j2  config.yaml > docker-compose.yaml
+RUN j2 -f ? pihole-client.j2  config.yaml > pihole-dns.json
+RUN j2 -f ? pihole-wg.j2  config.yaml > wg0.conf
+RUN j2 -f ? keypair.j2  config.yaml > keypair.json
